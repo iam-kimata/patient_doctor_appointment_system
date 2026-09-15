@@ -1,15 +1,135 @@
 import { useState } from "react";
 import Sidebar from "../../components/Admin/Sidebar";
+import api from "../../api/axios";
 
 const Dashboard = () => {
     const [stats, setStats] = useState({});
     const [appointments, setAppointments] = useState([])
 
-    const [showModal, setShowModal] = useState(false);
+    useEffect(() => {
+    const fetchDashboard = async () => {
+        try {
+            const token = localStorage.getItem("token");
+
+            const res = await api.get("dashboardInformation", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            setStats({
+                patients: res.data.totalPatients,
+                doctors: res.data.totalDoctors,
+                appointments: res.data.totalAppointments,
+            });
+
+            setAppointments(res.data.data);
+
+        }   catch (error) {
+            console.log(error.response?.data || error.message);
+        }
+    };
+
+    fetchDashboard();
+    }, []);
+
+    const [form, setForm] = useState({
+        patient: "",
+        doctor: "",
+        appointment_date: "",
+        appointment_time: "",
+    });
 
     const [patients, setPatients] = useState([]);
-
     const [doctors, setDoctors] = useState([]);
+
+    const handleChange = (e) => {
+        setForm({
+            ...form,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const [showModal, setShowModal] = useState(false);
+
+    const handleAdd = async (e) => {
+    e.preventDefault();
+
+    try {
+        const token = localStorage.getItem("token");
+
+        const res = await api.post(
+            "store",
+            form,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        // refresh list
+        fetchDashboard();
+
+        setForm({
+            patient: "",
+            doctor: "",
+            appointment_date: "",
+            appointment_time: "",
+        });
+
+        setShowModal(false);
+
+        } catch (error) {
+            console.log(error.response?.data || error.message);
+        }
+    };
+
+    const handleCancel = async (id) => {
+    if (!window.confirm("Are you sure you want to cancel this appointment?")) return;
+
+    try {
+        const token = localStorage.getItem("token");
+
+        await api.put(
+            `cancelAppointment/${id}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        // refresh list
+        fetchDashboard();
+
+        } catch (error) {
+            console.log(error.response?.data || error.message);
+        }
+    };
+
+    const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this appointment?")) return;
+
+    try {
+        const token = localStorage.getItem("token");
+
+        await api.delete(
+            `destroyAppointment/${id}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        // refresh list
+        fetchDashboard();
+
+        } catch (error) {
+            console.log(error.response?.data || error.message);
+        }
+    };
 
     return (
         <div>

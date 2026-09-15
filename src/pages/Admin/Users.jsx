@@ -1,14 +1,32 @@
 import { useState } from "react";
 import Sidebar from "../../components/Admin/Sidebar";
+import api from "../../api/axios";
 
 const Users = () => {
+    const [users, setUsers] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [role, setRole] = useState("");
 
-    const [users] = useState([
-        { id: 1, fullName: "Rajabu Shabani", email: "rajabu656@gmail.com", gender: "Male", location: "Mbagala", age: null, department: null, role: "Patient" },
-        { id: 2, fullName: "Nyelu Mwamkinga", email: "mwamkinga@gmail.com", gender: null, location: null, age: 49, department: "Counselling", role: "Doctor" },
-    ]);
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+
+    const fetchUsers = async () => {
+        try {
+            const token = localStorage.getItem("token");
+
+            const res = await api.get("users", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            setUsers(res.data);
+
+        } catch(error) {
+            console.log(error.response?.data || error.message);
+        }
+    };
 
     return (
         <div className="d-flex">
@@ -41,13 +59,13 @@ const Users = () => {
                                     {users.map((user, index) => (
                                         <tr key={user.id}>
                                             <td>{index + 1}</td>
-                                            <td>{user.fullName}</td>
-                                            <td>{user.email}</td>
-                                            <td>{user.gender ?? "NULL"}</td>
-                                            <td>{user.location ?? "NULL"}</td>
-                                            <td>{user.age ?? "NULL"}</td>
-                                            <td>{user.department ?? "NULL"}</td>
-                                            <td>{user.role}</td>
+                                            <td>{user?.fullName}</td>
+                                            <td>{user?.email}</td>
+                                            <td>{user?.gender ?? "NULL"}</td>
+                                            <td>{user?.location ?? "NULL"}</td>
+                                            <td>{user?.age ?? "NULL"}</td>
+                                            <td>{user?.department ?? "NULL"}</td>
+                                            <td>{user?.role}</td>
                                         </tr>
                                     ))}
                                 </tbody>
