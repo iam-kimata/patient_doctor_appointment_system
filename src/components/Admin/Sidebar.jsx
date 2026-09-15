@@ -1,6 +1,30 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../../api/axios";
 
 const Sidebar = () => {
+    const handleLogout = async () => {
+        try {
+            const token = localStorage.getItem("token");
+
+            await api.post(
+                "logout", 
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            localStorage.removeItem("token");
+
+            Navigate("/");
+
+        } catch (error) {
+            console.log(error?.response.data || error.message);
+        }
+    };
+    
     return (
         <>
             <div className="bg-dark text-light position-fixed p-3 sidebar">
