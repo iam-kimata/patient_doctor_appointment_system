@@ -1,11 +1,62 @@
 import { useState } from "react";
 import Sidebar from "../../components/Doctor/Sidebar";
+import api from "../../api/axios";
 
 const Dashboard = () => {
-    const [appointments] = useState([
-        { id: 1, doctor: "Aloyce Kimata", patient: "Paul Kenedy", date: "12/09/2026", time: "12:00", status: "Scheduled" },
-        { id: 2, doctor: "Nyelu Mwamkinga", patient: "Rajabu Shabani", date: "30/10/2026", time: "07:15", status: "Cancelled" },
-    ]);
+const [appointments, setAppointments] = useState([]);
+    useEffect(() => {
+        fetchAppointments();
+    }, []);
+    
+    const fetchAppointments = async () => {
+        try {
+            const token = localStorage.getItem("token");
+    
+            const res = await api.get("dashboardInformation", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+    
+            setUsers(res.data);
+    
+        } catch(error) {
+            console.log(error.response?.data || error.message);
+        }
+    };
+
+    const handleAdd = async (e) => {
+    e.preventDefault();
+
+    try {
+        const token = localStorage.getItem("token");
+
+        const res = await api.post(
+            "store",
+            form,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        // refresh list
+        fetchDashboard();
+
+        setForm({
+            patient: "",
+            doctor: "",
+            appointment_date: "",
+            appointment_time: "",
+        });
+
+        setShowModal(false);
+
+        } catch (error) {
+            console.log(error.response?.data || error.message);
+        }
+    };
 
     return (
         <div className="d-flex">
@@ -33,10 +84,10 @@ const Dashboard = () => {
                                     {appointments.map((appointment, index) => (
                                         <tr key={appointment.id}>
                                             <td>{index + 1}</td>
-                                            <td>{appointment.doctor}</td>
-                                            <td>{appointment.patient}</td>
-                                            <td>{appointment.date}</td>
-                                            <td>{appointment.time}</td>
+                                            <td>{appointment?.doctor}</td>
+                                            <td>{appointment?.patient}</td>
+                                            <td>{appointment?.appointment_date}</td>
+                                            <td>{appointment?.appointment_time}</td>
                                             <td 
                                                 className={
                                                     appointment.status === "Scheduled"
@@ -44,7 +95,7 @@ const Dashboard = () => {
                                                     : "text-warning"
                                                 }
                                             >
-                                                {appointment.status}
+                                                {appointment?.status}
                                             </td>
                                             <td>
                                                 <button className="btn btn-warning text-light btn-sm">Cancel</button>

@@ -4,7 +4,6 @@ import api from "../../api/axios";
 
 const Users = () => {
     const [users, setUsers] = useState([]);
-    const [showModal, setShowModal] = useState(false);
     const [role, setRole] = useState("");
 
     useEffect(() => {
@@ -24,6 +23,63 @@ const Users = () => {
             setUsers(res.data);
 
         } catch(error) {
+            console.log(error.response?.data || error.message);
+        }
+    };
+
+    const [form, setForm] = useState({
+        full_name: "",
+        email: "",
+        gender: "",
+        location: "",
+        age: "",
+        department: "",
+        password: "",
+        confirm_password: "",
+    });
+
+    const handleChange = (e) => {
+        setForm({
+            ...form,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const [showModal, setShowModal] = useState(false);
+
+    const handleAdd = async (e) => {
+    e.preventDefault();
+
+    try {
+        const token = localStorage.getItem("token");
+
+        const res = await api.post(
+            "createUser",
+            form,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        // refresh list
+        fetchDashboard();
+
+        setForm({
+            full_name: "",
+            email: "",
+            gender: "",
+            location: "",
+            age: "",
+            department: "",
+            password: "",
+            confirm_password: "",
+        });
+
+        setShowModal(false);
+
+        } catch (error) {
             console.log(error.response?.data || error.message);
         }
     };
@@ -95,23 +151,55 @@ const Users = () => {
                                                 </select>
                                             </div>
                                             <div className="col-md-6 mb-3">
-                                                <label htmlFor="fullName" className="form-label">Full Name</label>
-                                                <input type="text" name="fullName" id="fullName" className="form-control" placeholder="Enter Full Name" />
+                                                <label htmlFor="full_name" className="form-label">Full Name</label>
+                                                <input 
+                                                    type="text" 
+                                                    name="full_name" 
+                                                    id="full_name" 
+                                                    className="form-control" 
+                                                    placeholder="Enter Full Name"
+                                                    value={formData.full_name}
+                                                    onchange={handleChange}  
+                                                />
                                             </div>
                                             <div className="col-md-6 mb-3">
                                                 <label htmlFor="email" className="form-label">Email</label>
-                                                <input type="text" name="email" id="email" className="form-control" placeholder="Enter Email" />
+                                                <input 
+                                                    type="text" 
+                                                    name="email" 
+                                                    id="email" 
+                                                    className="form-control" 
+                                                    placeholder="Enter Email"
+                                                    value={formData.email}
+                                                    onchange={handleChange}  
+                                                />
                                             </div>
 
                                             {(role === "" || role === "Patient") && (
                                                 <>
                                                     <div className="col-md-6 mb-3">
                                                         <label htmlFor="gender" className="form-label">Gender</label>
-                                                        <input type="text" name="gender" id="gender" className="form-control" placeholder="Enter Gender" />
+                                                        <input 
+                                                            type="text" 
+                                                            name="gender" 
+                                                            id="gender" 
+                                                            className="form-control" 
+                                                            placeholder="Enter Gender"
+                                                            value={formData.gender}
+                                                            onchange={handleChange}  
+                                                        />
                                                     </div>
                                                     <div className="col-md-6 mb-3">
                                                         <label htmlFor="location" className="form-label">Location</label>
-                                                        <input type="text" name="location" id="location" className="form-control" placeholder="Enter Location" />
+                                                        <input 
+                                                            type="text" 
+                                                            name="location" 
+                                                            id="location" 
+                                                            className="form-control" 
+                                                            placeholder="Enter Location"
+                                                            value={formData.location}
+                                                            onchange={handleChange}  
+                                                        />
                                                     </div>
                                                 </>
                                             )}
@@ -120,22 +208,54 @@ const Users = () => {
                                                 <>
                                                     <div className="col-md-6 mb-3">
                                                         <label htmlFor="age" className="form-label">Age</label>
-                                                        <input type="text" name="age" id="age" className="form-control" placeholder="Enter Age" />
+                                                        <input 
+                                                            type="text" 
+                                                            name="age" 
+                                                            id="age" 
+                                                            className="form-control" 
+                                                            placeholder="Enter Age"
+                                                            value={formData.age}
+                                                            onchange={handleChange}  
+                                                        />
                                                     </div>
                                                     <div className="col-md-6 mb-3">
                                                         <label htmlFor="department" className="form-label">Department</label>
-                                                        <input type="text" name="department" id="department" className="form-control" placeholder="Enter Department" />
+                                                        <input 
+                                                            type="text" 
+                                                            name="department" 
+                                                            id="department" 
+                                                            className="form-control" 
+                                                            placeholder="Enter Department"
+                                                            value={formData.department}
+                                                            onchange={handleChange}  
+                                                        />
                                                     </div>
                                                 </>
                                             )}
 
                                             <div className="col-md-6 mb-3">
                                                 <label htmlFor="password" className="form-label">Password</label>
-                                                <input type="password" name="password" id="password" className="form-control" placeholder="Enter Password" />
+                                                <input 
+                                                    type="password" 
+                                                    name="password" 
+                                                    id="password" 
+                                                    className="form-control" 
+                                                    placeholder="Enter Password"
+                                                    value={formData.password}
+                                                    onchange={handleChange}  
+                                                />
                                             </div>
                                             <div className="col-md-6 mb-3">
-                                                <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
-                                                <input type="password" name="confirmPassword" id="confirmPassword" className="form-control" placeholder="Enter Confirm Password" />
+                                                <label htmlFor="confirm_password" className="form-label">Confirm Password</label>
+                                                <input 
+                                                    type="password" 
+                                                    name="confirm_password" 
+                                                    id="confirm_password" 
+                                                    className="form-control" 
+                                                    placeholder="Enter Confirm Password"
+                                                    value={formData.confirm_password}
+                                                    onchange={handleChange} 
+                                                />
                                             </div>
 
                                             <button type="submit" className="btn btn-success w-100">Submit</button>
