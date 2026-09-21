@@ -1,3 +1,7 @@
+.register-card {
+  padding: 40px;
+}
+
 .login-card {
   width: 100%; 
   max-width: 450px; 

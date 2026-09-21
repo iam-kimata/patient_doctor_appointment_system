@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "../../components/Admin/Sidebar";
 import api from "../../api/axios";
 
@@ -33,7 +33,7 @@ const Dashboard = () => {
     fetchDashboard();
     }, []);
 
-    const [form, setForm] = useState({
+    const [formData, setFormData] = useState({
         patient: "",
         doctor: "",
         appointment_date: "",
@@ -44,7 +44,7 @@ const Dashboard = () => {
     const [doctors, setDoctors] = useState([]);
 
     const handleChange = (e) => {
-        setForm({
+        setFormData({
             ...form,
             [e.target.name]: e.target.value,
         });

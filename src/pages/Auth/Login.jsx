@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 
 const Login = () => {
@@ -104,6 +104,13 @@ const Login = () => {
                         </div>
 
                         <button type="submit" className="btn btn-success w-100">Login</button>
+                        
+                        <p className="text-center mt-2">
+                            I don't have an account?{" "}
+                            <Link to="/register" className="text-decoration-none">
+                                Register
+                            </Link>
+                        </p>
                     </form>
                 </div>
             </div>
