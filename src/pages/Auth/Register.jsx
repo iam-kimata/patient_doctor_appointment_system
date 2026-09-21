@@ -6,13 +6,14 @@ const Register = () => {
     const [role, setRole] = useState("");
     const [formData, setFormData] = useState({
         full_name: "",
+        phone_number:"",
         email: "",
         gender: "",
         location: "",
         age: "",
         department: "",
         password: "",
-        confirm_password: "",
+        password_confirmation: "",
     });
 
     const handleChange = (e) => {
@@ -22,12 +23,50 @@ const Register = () => {
         });
     };
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const res = await api.post("register", {
+                ...formData,
+                role: role,
+            });
+
+            console.log(res.data);
+
+            alert("Registration successful!");
+
+            setFormData({
+                full_name: "",
+                phone_number: "",
+                email: "",
+                gender: "",
+                location: "",
+                age: "",
+                department: "",
+                password: "",
+                password_confirmation: "",
+            });
+
+            setRole("");
+
+        } catch (err) {
+            const status = err.response?.status;
+
+            if (status === 422) {
+                console.log(err.response.data.errors);
+            } else {
+                console.log(err.response?.data || err.message);
+            }
+        }
+    };
+
     return (
         <div className="d-flex">
             <div className="container py-5">
                 <div className="card register-card">
                     <h2 className="text-center mb-4 fw-bold">Register</h2>
-                    <form>
+                    <form onSubmit={handleSubmit}>
                         <div className="row">
                             <div className="col-md-6 mb-3">
                                 <label htmlFor="role" className="form-label">Role</label>
@@ -141,14 +180,14 @@ const Register = () => {
                                 />
                             </div>
                             <div className="col-md-6 mb-3">
-                                <label htmlFor="confirm_password" className="form-label">Confirm Password</label>
+                                <label htmlFor="password_confirmation" className="form-label">Confirm Password</label>
                                 <input 
                                     type="password" 
-                                    name="confirm_password" 
-                                    id="confirm_password" 
+                                    name="password_confirmation" 
+                                    id="password_confirmation" 
                                     className="form-control" 
                                     placeholder="Enter Confirm Password"
-                                    value={formData.confirm_password}
+                                    value={formData.password_confirmation}
                                     onChange={handleChange} 
                                 />
                             </div>
