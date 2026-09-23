@@ -2,6 +2,8 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 
 const Sidebar = () => {
+    const navigate = useNavigate();
+
     const handleLogout = async () => {
         try {
             const token = localStorage.getItem("token");
@@ -18,7 +20,7 @@ const Sidebar = () => {
 
             localStorage.removeItem("token");
 
-            Navigate("/");
+            navigate("/");
 
         } catch (error) {
             console.log(error?.response.data || error.message);
@@ -47,8 +49,13 @@ const Sidebar = () => {
                     </li>
                 </ul>
 
-                <div className="mt-5 text-danger">
-                    <i className="bi bi-box-arrow-right me-2"></i>Logout
+                <div
+                    className="mt-5 text-danger"
+                    onClick={handleLogout}
+                    style={{ cursor: "pointer" }}
+                >
+                    <i className="bi bi-box-arrow-right me-2"></i>
+                    Logout
                 </div>
             </div>
         </>

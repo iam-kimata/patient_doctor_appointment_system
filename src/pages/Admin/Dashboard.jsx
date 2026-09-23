@@ -6,12 +6,11 @@ const Dashboard = () => {
     const [stats, setStats] = useState({});
     const [appointments, setAppointments] = useState([])
 
-    useEffect(() => {
     const fetchDashboard = async () => {
         try {
             const token = localStorage.getItem("token");
 
-            const res = await api.get("dashboardInformation", {
+            const res = await api.get("dashboard", {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -25,12 +24,13 @@ const Dashboard = () => {
 
             setAppointments(res.data.data);
 
-        }   catch (error) {
+        } catch (error) {
             console.log(error.response?.data || error.message);
         }
     };
 
-    fetchDashboard();
+    useEffect(() => {
+        fetchDashboard();
     }, []);
 
     const [formData, setFormData] = useState({
@@ -45,12 +45,36 @@ const Dashboard = () => {
 
     const handleChange = (e) => {
         setFormData({
-            ...form,
+            ...formData,
             [e.target.name]: e.target.value,
         });
     };
 
     const [showModal, setShowModal] = useState(false);
+
+    useEffect(() => {
+    const fetchDropdownData = async () => {
+        try {
+            const token = localStorage.getItem("token");
+
+            const res = await api.get("create", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            setPatients(res.data.patients);
+            setDoctors(res.data.doctors);
+
+        } catch (error) {
+            console.log(
+                error.response?.data || error.message
+            );
+        }
+    };
+
+    fetchDropdownData();
+    }, []);
 
     const handleAdd = async (e) => {
     e.preventDefault();
@@ -60,7 +84,7 @@ const Dashboard = () => {
 
         const res = await api.post(
             "store",
-            form,
+            formData,
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -68,10 +92,9 @@ const Dashboard = () => {
             }
         );
 
-        // refresh list
         fetchDashboard();
 
-        setForm({
+        setFormData({
             patient: "",
             doctor: "",
             appointment_date: "",
@@ -92,7 +115,8 @@ const Dashboard = () => {
         const token = localStorage.getItem("token");
 
         await api.put(
-            `cancelAppointment/${id}`,
+            `appointments/${id}`,
+            {},
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -100,8 +124,7 @@ const Dashboard = () => {
             }
         );
 
-        // refresh list
-        fetchDashboard();
+        await fetchDashboard();
 
         } catch (error) {
             console.log(error.response?.data || error.message);
@@ -109,28 +132,24 @@ const Dashboard = () => {
     };
 
     const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this appointment?")) return;
+        if (!window.confirm("Are you sure you want to delete this appointment?")) return;
 
-    try {
-        const token = localStorage.getItem("token");
+        try {
+            const token = localStorage.getItem("token");
 
-        await api.delete(
-            `destroyAppointment/${id}`,
-            {
+            await api.delete(`appointments/${id}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
-            }
-        );
+            });
 
-        // refresh list
-        fetchDashboard();
+            await fetchDashboard();
 
         } catch (error) {
             console.log(error.response?.data || error.message);
         }
     };
-
+    
     return (
         <div>
             {/* sidebar */}
@@ -192,7 +211,7 @@ const Dashboard = () => {
                                             <td>{appointment?.appointment_time}</td>
                                             <td 
                                                 className={
-                                                    appointment.status === "Scheduled"
+                                                    appointment.status === "scheduled"
                                                     ? "text-success"
                                                     : "text-warning"
                                                 }
@@ -233,10 +252,10 @@ const Dashboard = () => {
                                     <button className="btn-close btn-close-white" onClick={() => setShowModal(false)}></button>
                                 </div>
                                 <div className="modal-body p-4">
-                                    <form>
+                                    <form onSubmit={handleAdd}>
                                         <div className="mb-3">
                                             <label htmlFor="patient" className="form-label">Patient Name</label>
-                                            <select name="patient" id="patient" className="form-select" defaultValue="">
+                                            <select name="patient" id="patient" className="form-select" value={formData.patient} onChange={handleChange}>
                                                 <option value="" disabled>Select Patient</option>
 
                                                 {patients.map((patient) => (
@@ -248,7 +267,7 @@ const Dashboard = () => {
                                         </div>
                                         <div className="mb-3">
                                             <label htmlFor="doctor" className="form-label">Doctor Name</label>
-                                            <select name="doctor" id="doctor" className="form-select" defaultValue="">
+                                            <select name="doctor" id="doctor" className="form-select" value={formData.doctor} onChange={handleChange}>
                                                 <option value="" disabled>Select Doctor</option>
 
                                                 {doctors.map((doctor) => (
