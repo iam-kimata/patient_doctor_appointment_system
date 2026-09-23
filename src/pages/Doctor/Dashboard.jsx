@@ -12,28 +12,28 @@ const [appointments, setAppointments] = useState([]);
         try {
             const token = localStorage.getItem("token");
     
-            const res = await api.get("dashboardInformation", {
+            const res = await api.get("dashboardInfo", {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             });
     
-            setUsers(res.data);
+            setAppointments(res.data.appointments);
     
         } catch(error) {
             console.log(error.response?.data || error.message);
         }
     };
 
-    const handleAdd = async (e) => {
-    e.preventDefault();
+    const handleCancel = async (id) => {
+    if (!window.confirm("Are you sure you want to cancel this appointment?")) return;
 
     try {
         const token = localStorage.getItem("token");
 
-        const res = await api.post(
-            "store",
-            form,
+        await api.put(
+            `appointments/${id}`,
+            {},
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -41,17 +41,7 @@ const [appointments, setAppointments] = useState([]);
             }
         );
 
-        // refresh list
-        fetchDashboard();
-
-        setForm({
-            patient: "",
-            doctor: "",
-            appointment_date: "",
-            appointment_time: "",
-        });
-
-        setShowModal(false);
+        await fetchAppointments();
 
         } catch (error) {
             console.log(error.response?.data || error.message);
@@ -84,13 +74,13 @@ const [appointments, setAppointments] = useState([]);
                                     {appointments.map((appointment, index) => (
                                         <tr key={appointment.id}>
                                             <td>{index + 1}</td>
-                                            <td>{appointment?.doctor}</td>
-                                            <td>{appointment?.patient}</td>
+                                            <td>{appointment?.doctor?.full_name}</td>
+                                            <td>{appointment?.patient?.full_name}</td>
                                             <td>{appointment?.appointment_date}</td>
                                             <td>{appointment?.appointment_time}</td>
                                             <td 
                                                 className={
-                                                    appointment.status === "Scheduled"
+                                                    appointment.status === "scheduled"
                                                     ? "text-success"
                                                     : "text-warning"
                                                 }
@@ -98,7 +88,12 @@ const [appointments, setAppointments] = useState([]);
                                                 {appointment?.status}
                                             </td>
                                             <td>
-                                                <button className="btn btn-warning text-light btn-sm">Cancel</button>
+                                                <button 
+                                                    className="btn btn-warning text-light btn-sm"
+                                                    onClick={() => handleCancel(appointment.id)}
+                                                >
+                                                    Cancel
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}
